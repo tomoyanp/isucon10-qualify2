@@ -38,7 +38,7 @@ CREATE TABLE isuumo.chair
     stock       INTEGER         NOT NULL
 );
 
-create index chair1 ON chair(stock, price, id);
-create index chair2 on chair(price, stock);
-create index estate1 ON estate(rent, id);
-create index estate2 ON estate(rent);
+create index chair1 ON isuumo.chair(stock, price, id);
+create index chair2 ON isuumo.chair(price, stock);
+create index estate1 ON isuumo.estate(rent, id);
+create index estate2 ON isuumo.estate(rent);
