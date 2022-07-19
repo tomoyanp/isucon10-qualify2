@@ -34,6 +34,7 @@ CREATE TABLE isuumo.chair
     features    VARCHAR(64)     NOT NULL,
     kind        VARCHAR(64)     NOT NULL,
     popularity  INTEGER         NOT NULL,
+    popularity_v  INTEGER    AS (-popularity)     NOT NULL ,
     stock       INTEGER         NOT NULL
 );
 
