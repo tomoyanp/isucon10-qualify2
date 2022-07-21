@@ -387,7 +387,7 @@ func postChair(c echo.Context) error {
 			return c.NoContent(http.StatusBadRequest)
 		}
 		// _, err := tx.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
-		sql += fmt.Sprintf("(%s,'%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s',%s,%s)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
+		sql += fmt.Sprintf("(%v,'%s','%s','%s',%v,%v,%v,%v,'%s','%s','%s',%v,%v)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
 
 		if index != len(records)-1 {
 			sql += ","
@@ -755,7 +755,7 @@ func postEstate(c echo.Context) error {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		sql += fmt.Sprintf("(%s,'%s','%s','%s','%s',%s,%s,%s,%s,%s,'%s',%s)", id, name, description, thumbnail, address, latitude, longitude, rent, doorHeight, doorWidth, features, popularity)
+		sql += fmt.Sprintf("(%v,'%s','%s','%s','%s',%v,%v,%v,%v,%v,'%s',%v)", id, name, description, thumbnail, address, latitude, longitude, rent, doorHeight, doorWidth, features, popularity)
 		if index != len(records)-1 {
 			sql += ","
 		}
@@ -765,6 +765,7 @@ func postEstate(c echo.Context) error {
 		// 	return c.NoContent(http.StatusInternalServerError)
 		// }
 	}
+	c.Logger().Errorf(sql)
 	_, err1 := tx.Exec(sql)
 	if err1 != nil {
 		c.Logger().Errorf("failed to insert estate: %v", err1)
