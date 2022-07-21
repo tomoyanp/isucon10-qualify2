@@ -365,7 +365,9 @@ func postChair(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	defer tx.Rollback()
-	for _, row := range records {
+
+	sql := "INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES"
+	for index, row := range records {
 		rm := RecordMapper{Record: row}
 		id := rm.NextInt()
 		name := rm.NextString()
@@ -384,18 +386,86 @@ func postChair(c echo.Context) error {
 			c.Logger().Errorf("failed to read record: %v", err)
 			return c.NoContent(http.StatusBadRequest)
 		}
-		_, err := tx.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
-		if err != nil {
-			c.Logger().Errorf("failed to insert chair: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
+		// _, err := tx.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
+		sql += fmt.Sprintf("(%s,'%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s',%s,%s)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
+
+		if index != len(records)-1 {
+			sql += ","
 		}
+		// if err != nil {
+		// 	c.Logger().Errorf("failed to insert chair: %v", err)
+		// 	return c.NoContent(http.StatusInternalServerError)
+		// }
 	}
+
+	_, err1 := tx.Exec(sql)
+	if err1 != nil {
+		c.Logger().Errorf("failed to insert chair: %v", err1)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
 	if err := tx.Commit(); err != nil {
 		c.Logger().Errorf("failed to commit tx: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	return c.NoContent(http.StatusCreated)
 }
+
+// func postChair(c echo.Context) error {
+// 	header, err := c.FormFile("chairs")
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to get form file: %v", err)
+// 		return c.NoContent(http.StatusBadRequest)
+// 	}
+// 	f, err := header.Open()
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to open form file: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+// 	defer f.Close()
+// 	records, err := csv.NewReader(f).ReadAll()
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to read csv: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+//
+// 	tx, err := db.Begin()
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to begin tx: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+// 	defer tx.Rollback()
+// 	for _, row := range records {
+// 		rm := RecordMapper{Record: row}
+// 		id := rm.NextInt()
+// 		name := rm.NextString()
+// 		description := rm.NextString()
+// 		thumbnail := rm.NextString()
+// 		price := rm.NextInt()
+// 		height := rm.NextInt()
+// 		width := rm.NextInt()
+// 		depth := rm.NextInt()
+// 		color := rm.NextString()
+// 		features := rm.NextString()
+// 		kind := rm.NextString()
+// 		popularity := rm.NextInt()
+// 		stock := rm.NextInt()
+// 		if err := rm.Err(); err != nil {
+// 			c.Logger().Errorf("failed to read record: %v", err)
+// 			return c.NoContent(http.StatusBadRequest)
+// 		}
+// 		_, err := tx.Exec("INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
+// 		if err != nil {
+// 			c.Logger().Errorf("failed to insert chair: %v", err)
+// 			return c.NoContent(http.StatusInternalServerError)
+// 		}
+// 	}
+// 	if err := tx.Commit(); err != nil {
+// 		c.Logger().Errorf("failed to commit tx: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+// 	return c.NoContent(http.StatusCreated)
+// }
 
 func searchChairs(c echo.Context) error {
 	conditions := make([]string, 0)
@@ -665,8 +735,8 @@ func postEstate(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	defer tx.Rollback()
-	// TODO balk insertしてもよい
-	for _, row := range records {
+	sql := "INSERT INTO estate(id, name, description, thumbnail, address, latitude, longitude, rent, door_height, door_width, features, popularity) VALUES"
+	for index, row := range records {
 		rm := RecordMapper{Record: row}
 		id := rm.NextInt()
 		name := rm.NextString()
@@ -684,18 +754,85 @@ func postEstate(c echo.Context) error {
 			c.Logger().Errorf("failed to read record: %v", err)
 			return c.NoContent(http.StatusBadRequest)
 		}
-		_, err := tx.Exec("INSERT INTO estate(id, name, description, thumbnail, address, latitude, longitude, rent, door_height, door_width, features, popularity) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", id, name, description, thumbnail, address, latitude, longitude, rent, doorHeight, doorWidth, features, popularity)
-		if err != nil {
-			c.Logger().Errorf("failed to insert estate: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
+
+		sql += fmt.Sprintf("(%s,'%s','%s','%s','%s',%s,%s,%s,%s,%s,'%s',%s)", id, name, description, thumbnail, address, latitude, longitude, rent, doorHeight, doorWidth, features, popularity)
+		if index != len(records)-1 {
+			sql += ","
 		}
+
+		// if err != nil {
+		// 	c.Logger().Errorf("failed to insert estate: %v", err)
+		// 	return c.NoContent(http.StatusInternalServerError)
+		// }
 	}
+	_, err1 := tx.Exec(sql)
+	if err1 != nil {
+		c.Logger().Errorf("failed to insert estate: %v", err1)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
 	if err := tx.Commit(); err != nil {
 		c.Logger().Errorf("failed to commit tx: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	return c.NoContent(http.StatusCreated)
 }
+
+// func postEstate(c echo.Context) error {
+// 	header, err := c.FormFile("estates")
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to get form file: %v", err)
+// 		return c.NoContent(http.StatusBadRequest)
+// 	}
+// 	f, err := header.Open()
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to open form file: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+// 	defer f.Close()
+// 	records, err := csv.NewReader(f).ReadAll()
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to read csv: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+//
+// 	tx, err := db.Begin()
+// 	if err != nil {
+// 		c.Logger().Errorf("failed to begin tx: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+// 	defer tx.Rollback()
+// 	// TODO balk insertしてもよい
+// 	for _, row := range records {
+// 		rm := RecordMapper{Record: row}
+// 		id := rm.NextInt()
+// 		name := rm.NextString()
+// 		description := rm.NextString()
+// 		thumbnail := rm.NextString()
+// 		address := rm.NextString()
+// 		latitude := rm.NextFloat()
+// 		longitude := rm.NextFloat()
+// 		rent := rm.NextInt()
+// 		doorHeight := rm.NextInt()
+// 		doorWidth := rm.NextInt()
+// 		features := rm.NextString()
+// 		popularity := rm.NextInt()
+// 		if err := rm.Err(); err != nil {
+// 			c.Logger().Errorf("failed to read record: %v", err)
+// 			return c.NoContent(http.StatusBadRequest)
+// 		}
+// 		_, err := tx.Exec("INSERT INTO estate(id, name, description, thumbnail, address, latitude, longitude, rent, door_height, door_width, features, popularity) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", id, name, description, thumbnail, address, latitude, longitude, rent, doorHeight, doorWidth, features, popularity)
+// 		if err != nil {
+// 			c.Logger().Errorf("failed to insert estate: %v", err)
+// 			return c.NoContent(http.StatusInternalServerError)
+// 		}
+// 	}
+// 	if err := tx.Commit(); err != nil {
+// 		c.Logger().Errorf("failed to commit tx: %v", err)
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+// 	return c.NoContent(http.StatusCreated)
+// }
 
 // TODO ここ相当やばいな
 func searchEstates(c echo.Context) error {
