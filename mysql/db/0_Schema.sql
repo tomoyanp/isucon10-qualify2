@@ -41,5 +41,9 @@ CREATE TABLE isuumo.chair
 
 create index chair1 ON isuumo.chair(stock, price, id);
 create index chair2 ON isuumo.chair(price, stock);
+create index chair3 ON isuumo.chair(price, id);
+create index chair4 ON isuumo.chair(popularity_v, id);
 create index estate1 ON isuumo.estate(rent, id);
 create index estate2 ON isuumo.estate(rent);
+create index estate3 ON isuumo.estate (popularity_v, id);
+
